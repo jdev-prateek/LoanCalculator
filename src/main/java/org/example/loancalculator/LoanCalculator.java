@@ -1,58 +1,87 @@
 package org.example.loancalculator;
 
 import javafx.application.Application;
-import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.text.NumberFormat;
+import java.util.Currency;
+import java.util.Locale;
+
 public class LoanCalculator extends Application {
-    private TextField tfAnnalInterestRate = new TextField();
-    private TextField tfNumberOfYears = new TextField();
-    private TextField tfLoanAmount = new TextField();
-    private TextField tfMonthlyPayment = new TextField();
-    private TextField tfTotalPayment = new TextField();
-    private Button btCalculate = new Button("Calculate");
+    private final TextField tfAnnalInterestRate = new TextField();
+    private final TextField tfNumberOfYears = new TextField();
+    private final TextField tfLoanAmount = new TextField();
+    private final Label lblMonthlyPayment = new Label();
+    private final Label lblTotalPayment = new Label();
+    private final Button btCalculate = new Button("Calculate");
+
+    Locale locale = Locale.getDefault();
+    NumberFormat numberFormatInstance = NumberFormat.getInstance(locale);
+    Currency currency = Currency.getInstance(locale);
+    final String NON_NUMBERS_REGEX = "[^\\d.]";
 
     @Override
     public void start(Stage stage) throws Exception {
-        GridPane gridPane = new GridPane();
-        gridPane.setHgap(5);
-        gridPane.setVgap(5);
+        numberFormatInstance.setMaximumFractionDigits(2);
 
-        gridPane.add(new Label("Annual Interest Rate"), 0, 0);
-        gridPane.add(tfAnnalInterestRate, 1, 0);
-        gridPane.add(new Label("Number of years:"), 0, 1);
-        gridPane.add(tfNumberOfYears, 1, 1);
-        gridPane.add(new Label("Loan Amount:"), 0, 2);
-        gridPane.add(tfLoanAmount, 1, 2);
-        gridPane.add(new Label("Monthly Payment:"), 0, 3);
-        gridPane.add(tfMonthlyPayment, 1, 3);
-        gridPane.add(new Label("Total Payment:"), 0, 4);
-        gridPane.add(tfTotalPayment, 1, 4);
-        gridPane.add(btCalculate, 1, 5);
+        GridPane gridPane1 = new GridPane();
+        gridPane1.setHgap(5);
+        gridPane1.setVgap(5);
+
+        gridPane1.add(new Label("Annual Interest Rate (%)"), 0, 0);
+        gridPane1.add(tfAnnalInterestRate, 1, 0);
+        gridPane1.add(new Label("Number of years:"), 0, 1);
+        gridPane1.add(tfNumberOfYears, 1, 1);
+        gridPane1.add(new Label("Loan Amount:"), 0, 2);
+        gridPane1.add(tfLoanAmount, 1, 2);
+
+        gridPane1.add(btCalculate, 1, 3);
+
+        GridPane gridPane2 = new GridPane();
+        gridPane2.setHgap(5);
+        gridPane2.setVgap(5);
+
+        gridPane2.add(new Label("Monthly Payment:"), 0, 0);
+        gridPane2.add(lblMonthlyPayment, 1, 0);
+        gridPane2.add(new Label("Total Payment:"), 0, 1);
+        gridPane2.add(lblTotalPayment, 1, 1);
+
+        VBox vBox = new VBox(10, gridPane1, gridPane2);
+        vBox.setAlignment(Pos.CENTER);
 
         // ui properties
-        gridPane.setAlignment(Pos.CENTER);
-        GridPane.setHalignment(btCalculate, HPos.LEFT);
-        tfTotalPayment.setEditable(false);
+        gridPane1.setAlignment(Pos.CENTER);
+        gridPane2.setAlignment(Pos.BOTTOM_CENTER);
+        gridPane2.setVisible(false);
+
+        tfLoanAmount.textProperty().addListener((observableValue, oldVal, newVal) -> {
+            newVal = newVal.replaceAll(NON_NUMBERS_REGEX, "");
+            tfLoanAmount.setText(currency.getSymbol() + " " + numberFormatInstance.format(Double.parseDouble(newVal)));
+        });
 
         btCalculate.setOnAction(actionEvent -> {
             System.out.println(tfAnnalInterestRate.getText());
             double interestRate = Double.parseDouble(tfAnnalInterestRate.getText());
             double years = Double.parseDouble(tfNumberOfYears.getText());
-            double principal = Double.parseDouble(tfLoanAmount.getText());
+
+            String loanAmount = tfLoanAmount.getText();
+            loanAmount = loanAmount.replaceAll(NON_NUMBERS_REGEX, "");
+            double principal = Double.parseDouble(loanAmount);
 
             Loan loan = new Loan(interestRate, principal, years * 12);
-            tfMonthlyPayment.setText(String.format("%.2f", loan.getMonthlyPayment()));
-            tfTotalPayment.setText(String.format("%.2f", loan.getTotalAmount()));
+            lblMonthlyPayment.setText(currency.getSymbol() + " " + numberFormatInstance.format(loan.getMonthlyPayment()));
+            lblTotalPayment.setText(currency.getSymbol() + " " + numberFormatInstance.format(loan.getTotalAmount()));
+            gridPane2.setVisible(true);
         });
 
-        Scene scene = new Scene(gridPane, 400, 250);
+        Scene scene = new Scene(vBox, 400, 250);
         stage.setScene(scene);
         stage.setTitle("Loan Calculator");
         stage.show();
