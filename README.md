@@ -6,3 +6,4 @@ A simple desktop app to calculate loan.
 
 * Add locale
 * highlight required fields on empty
+* add logs
