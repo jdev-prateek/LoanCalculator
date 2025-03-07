@@ -4,15 +4,15 @@ A simple desktop app to calculate loan.
 
 ## Todo
 
-* Add locale
-* highlight required fields on empty
-* add logs
-* add clern button
+* Add locale - x
+* highlight required fields on empty - x
+* add logs 
+* add clern button - x
 * add about in menu
-* fix window size
+* fix window size - x
 * view logs 
 * export data
-* show message box on errors
-* add validation for integers
-* add request focus
+* show message box on errors - x
+* add validation for integers - x
+* add request focus - x
 * add option to change compunding period
