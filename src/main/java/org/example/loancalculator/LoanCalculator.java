@@ -1,26 +1,52 @@
 package org.example.loancalculator;
 
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.example.loancalculator.ui.MessageBox;
+import org.example.loancalculator.utils.Loan;
+import org.example.loancalculator.utils.NumerUtil;
+import org.example.loancalculator.utils.Validator;
 
 import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
 
 public class LoanCalculator extends Application {
-    private final TextField tfAnnalInterestRate = new TextField();
-    private final TextField tfNumberOfYears = new TextField();
-    private final TextField tfLoanAmount = new TextField();
-    private final Label lblMonthlyPayment = new Label();
-    private final Label lblTotalPayment = new Label();
-    private final Button btCalculate = new Button("Calculate");
+    Stage currentStage;
+
+    private final int BUTTON_WIDTH = 120;
+    private final int HBOX_SPACING = 40;
+    private final int LBL_PREF_WIDTH = 200;
+    private final int TF_PREF_WIDTH = 250;
+
+    private TextField tfAnnalInterestRate;
+    private TextField tfNumberOfYears;
+    private TextField tfLoanAmount;
+
+    private TextArea taLoanSummary;
+
+    private Button btnCalculate;
+    private Button btnClear;
+
+    Label lblAnnualInterestRate;
+    Label lblNumberOfYears;
+    Label lblLoanAmount;
+    Label lblMonthlyPayment;
+    Label lblTotalPayment;
+    Label lblLoanAmountInWords;
+    Label lblMonthlyPaymentVal;
+    Label lblTotalPaymentVal;
 
     Locale locale = Locale.getDefault();
     NumberFormat numberFormatInstance = NumberFormat.getInstance(locale);
@@ -29,45 +55,51 @@ public class LoanCalculator extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        currentStage = stage;
         numberFormatInstance.setMaximumFractionDigits(2);
 
-        GridPane gridPane1 = new GridPane();
-        gridPane1.setHgap(5);
-        gridPane1.setVgap(5);
+        MessageBox.setPrimaryStage(currentStage);
 
-        gridPane1.add(new Label("Annual Interest Rate (%)"), 0, 0);
-        gridPane1.add(tfAnnalInterestRate, 1, 0);
-        gridPane1.add(new Label("Number of years:"), 0, 1);
-        gridPane1.add(tfNumberOfYears, 1, 1);
-        gridPane1.add(new Label("Loan Amount:"), 0, 2);
-        gridPane1.add(tfLoanAmount, 1, 2);
+        BorderPane rootPane = new BorderPane();
 
-        gridPane1.add(btCalculate, 1, 3);
+        HBox interestPane = getInterestPane();
+        HBox yearsPane = getYearsPane();
+        HBox loanAmountPane = getLoanAmountPane();
+        HBox buttonPane = getButtonPane();
+        HBox monthlyPaymentPane = getMonthlyPaymentPane();
+        HBox totalPaymentPane = getTotalPaymentPane();
+        HBox loanAmountInWordsPane = getLoanAmountInWordsPane();
+        VBox amortizationPane = getAmortizationPane();
 
-        GridPane gridPane2 = new GridPane();
-        gridPane2.setHgap(5);
-        gridPane2.setVgap(5);
+        VBox inputPane = new VBox(10);
+        inputPane.getChildren().addAll(interestPane,
+                yearsPane, loanAmountPane, loanAmountInWordsPane, buttonPane,
+                monthlyPaymentPane, totalPaymentPane, amortizationPane
+        );
 
-        gridPane2.add(new Label("Monthly Payment:"), 0, 0);
-        gridPane2.add(lblMonthlyPayment, 1, 0);
-        gridPane2.add(new Label("Total Payment:"), 0, 1);
-        gridPane2.add(lblTotalPayment, 1, 1);
-
-        VBox vBox = new VBox(10, gridPane1, gridPane2);
-        vBox.setAlignment(Pos.CENTER);
-
-        // ui properties
-        gridPane1.setAlignment(Pos.CENTER);
-        gridPane2.setAlignment(Pos.BOTTOM_CENTER);
-        gridPane2.setVisible(false);
+        rootPane.setPadding(new Insets(20));
+        rootPane.setTop(inputPane);
 
         tfLoanAmount.textProperty().addListener((observableValue, oldVal, newVal) -> {
-            newVal = newVal.replaceAll(NON_NUMBERS_REGEX, "");
-            tfLoanAmount.setText(currency.getSymbol() + " " + numberFormatInstance.format(Double.parseDouble(newVal)));
+            if (newVal.isEmpty()) {
+                return;
+            }
+
+            try {
+                lblLoanAmountInWords.setText(NumerUtil.getToWords(Double.parseDouble(newVal)));
+            } catch (NumberFormatException e) {
+                lblLoanAmountInWords.setText("Invalid number");
+            }
         });
 
-        btCalculate.setOnAction(actionEvent -> {
-            System.out.println(tfAnnalInterestRate.getText());
+        btnCalculate.setOnAction(actionEvent -> {
+            if (!Validator.isDouble(tfAnnalInterestRate, "Interest rate must be a number")
+                    || !Validator.isDouble(tfNumberOfYears, "Years must be a number")
+                    || !Validator.isDouble(tfLoanAmount, "Loan amount must be a number")
+            ) {
+                return;
+            }
+
             double interestRate = Double.parseDouble(tfAnnalInterestRate.getText());
             double years = Double.parseDouble(tfNumberOfYears.getText());
 
@@ -76,14 +108,137 @@ public class LoanCalculator extends Application {
             double principal = Double.parseDouble(loanAmount);
 
             Loan loan = new Loan(interestRate, principal, years * 12);
-            lblMonthlyPayment.setText(currency.getSymbol() + " " + numberFormatInstance.format(loan.getMonthlyPayment()));
-            lblTotalPayment.setText(currency.getSymbol() + " " + numberFormatInstance.format(loan.getTotalAmount()));
-            gridPane2.setVisible(true);
+            lblMonthlyPaymentVal.setText(currency.getSymbol() + " " + numberFormatInstance.format(loan.getMonthlyPayment()));
+            lblTotalPaymentVal.setText(currency.getSymbol() + " " + numberFormatInstance.format(loan.getTotalAmount()));
+
+            taLoanSummary.setText(loan.printAmortizationSchedule());
         });
 
-        Scene scene = new Scene(vBox, 400, 250);
-        stage.setScene(scene);
-        stage.setTitle("Loan Calculator");
-        stage.show();
+        btnClear.setOnAction(e -> {
+            tfAnnalInterestRate.setText("");
+            tfNumberOfYears.setText("");
+            tfLoanAmount.setText("");
+            lblMonthlyPaymentVal.setText("NA");
+            lblTotalPaymentVal.setText("NA");
+            taLoanSummary.setText("Loan amortization detail will appear here");
+        });
+
+        Scene scene = new Scene(rootPane, 600, 550);
+        currentStage.setScene(scene);
+        currentStage.setTitle("Loan Calculator");
+        currentStage.show();
+    }
+
+    public HBox getInterestPane() {
+        // interest row
+        lblAnnualInterestRate = new Label("Annual Interest Rate (%)");
+        lblAnnualInterestRate.setPrefWidth(LBL_PREF_WIDTH);
+        tfAnnalInterestRate = new TextField();
+        tfAnnalInterestRate.setPromptText("Enter interest like 8.5");
+        HBox.setHgrow(tfAnnalInterestRate, Priority.ALWAYS);
+
+        HBox interestPane = new HBox(HBOX_SPACING);
+        interestPane.getChildren().addAll(lblAnnualInterestRate, tfAnnalInterestRate);
+        interestPane.setAlignment(Pos.CENTER_LEFT);
+//        interestPane.setStyle("-fx-border-color: red; -fx-border-width: 2px; -fx-border-style: solid;");
+        return interestPane;
+    }
+
+    public HBox getYearsPane() {
+        // years row
+        lblNumberOfYears = new Label("Number of years:");
+        lblNumberOfYears.setPrefWidth(LBL_PREF_WIDTH);
+        tfNumberOfYears = new TextField();
+        tfNumberOfYears.setPromptText("Enter years like 10");
+        tfNumberOfYears.setPrefWidth(TF_PREF_WIDTH);
+        HBox.setHgrow(tfNumberOfYears, Priority.ALWAYS);
+
+        HBox yearsPane = new HBox(HBOX_SPACING);
+        yearsPane.getChildren().addAll(lblNumberOfYears, tfNumberOfYears);
+        yearsPane.setAlignment(Pos.CENTER_LEFT);
+        return yearsPane;
+    }
+
+    public HBox getLoanAmountPane() {
+        // years row
+        lblLoanAmount = new Label("Loan Amount:");
+        lblLoanAmount.setPrefWidth(LBL_PREF_WIDTH);
+        tfLoanAmount = new TextField();
+        tfLoanAmount.setPromptText("Enter amount like 1000");
+        tfLoanAmount.setPrefWidth(TF_PREF_WIDTH);
+        HBox.setHgrow(tfLoanAmount, Priority.ALWAYS);
+
+
+        HBox pane = new HBox(HBOX_SPACING);
+        pane.getChildren().addAll(lblLoanAmount, tfLoanAmount);
+        pane.setAlignment(Pos.CENTER_LEFT);
+        return pane;
+    }
+
+    public HBox getLoanAmountInWordsPane() {
+        lblLoanAmountInWords = new Label("");
+//        lblLoanAmountInWords.setStyle("-fx-border-color: red; -fx-border-width: 2px; -fx-border-style: solid;");
+//        lblLoanAmountInWords.setPrefWidth(490);
+        lblLoanAmountInWords.setAlignment(Pos.BOTTOM_RIGHT);
+
+        HBox.setHgrow(lblLoanAmountInWords, Priority.ALWAYS);
+        HBox pane = new HBox(HBOX_SPACING);
+        pane.getChildren().addAll(lblLoanAmountInWords);
+//        pane.setStyle("-fx-border-color: red; -fx-border-width: 2px; -fx-border-style: solid;");
+        pane.setAlignment(Pos.CENTER_RIGHT);
+        return pane;
+    }
+
+    public HBox getButtonPane() {
+        btnCalculate = new Button("Calculate");
+        btnCalculate.setPrefWidth(BUTTON_WIDTH);
+
+        btnClear = new Button("Clear");
+        btnClear.setPrefWidth(BUTTON_WIDTH);
+
+
+        HBox pane = new HBox(HBOX_SPACING);
+        pane.getChildren().addAll(btnCalculate, btnClear);
+        pane.setAlignment(Pos.BOTTOM_RIGHT);
+//        pane.setStyle("-fx-border-color: red; -fx-border-width: 2px; -fx-border-style: solid;");
+        return pane;
+    }
+
+    public HBox getMonthlyPaymentPane() {
+        lblMonthlyPayment = new Label("Monthly Payment:");
+        lblMonthlyPayment.setPrefWidth(LBL_PREF_WIDTH);
+
+        lblMonthlyPaymentVal = new Label("NA");
+        lblMonthlyPaymentVal.setPrefWidth(TF_PREF_WIDTH);
+
+        HBox.setHgrow(lblMonthlyPaymentVal, Priority.ALWAYS);
+        HBox pane = new HBox(HBOX_SPACING);
+        pane.getChildren().addAll(lblMonthlyPayment, lblMonthlyPaymentVal);
+//        pane.setStyle("-fx-border-color: red; -fx-border-width: 2px; -fx-border-style: solid;");
+        return pane;
+    }
+
+    public HBox getTotalPaymentPane() {
+        lblTotalPayment = new Label("Total Payment:");
+        lblTotalPayment.setPrefWidth(LBL_PREF_WIDTH);
+
+        lblTotalPaymentVal = new Label("NA");
+        lblTotalPaymentVal.setPrefWidth(TF_PREF_WIDTH);
+
+        HBox pane = new HBox(HBOX_SPACING);
+        pane.getChildren().addAll(lblTotalPayment, lblTotalPaymentVal);
+        pane.setAlignment(Pos.CENTER_LEFT);
+        return pane;
+    }
+
+    public VBox getAmortizationPane(){
+        Label lbl = new Label("Ammortizaton details");
+        taLoanSummary = new TextArea("Loan amortization detail will appear here");
+        taLoanSummary.setStyle("-fx-font-family: 'Monospaced';");
+        taLoanSummary.setEditable(false);
+        taLoanSummary.setMinHeight(200);  // Set preferred size
+        VBox pane = new VBox(10, lbl, taLoanSummary);
+//        pane.setStyle("-fx-border-color: red; -fx-border-width: 2px; -fx-border-style: solid;");
+        return pane;
     }
 }
