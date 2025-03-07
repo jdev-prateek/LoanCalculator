@@ -1,11 +1,18 @@
 package org.example.loancalculator.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.NumberFormat;
 
 public class ExportUtil {
+    static Logger LOGGER = LoggerFactory.getLogger(Validator.class);
+
     public static void exportAmortizationScheduleToCSV(Loan loan, String filename) {
+        LOGGER.info("Amortization schedule CSV export started");
+
         double monthlyRate = (loan.getInterestRate() / 100) / 12;
         int totalPayments = (int) loan.getMonths();
 
@@ -38,9 +45,9 @@ public class ExportUtil {
                         .append("\"\n");
             }
 
-            System.out.println("Amortization schedule saved to: " + filename);
+            LOGGER.info("Amortization schedule CSV export completed");
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Error generating cs file {}", e.getMessage());
         }
     }
 

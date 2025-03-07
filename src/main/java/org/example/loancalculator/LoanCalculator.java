@@ -18,12 +18,15 @@ import org.example.loancalculator.utils.ExportUtil;
 import org.example.loancalculator.utils.Loan;
 import org.example.loancalculator.utils.NumerUtil;
 import org.example.loancalculator.utils.Validator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
 
 public class LoanCalculator extends Application {
+    Logger LOGGER = LoggerFactory.getLogger(LoanCalculator.class);
     Stage currentStage;
 
     private final int BUTTON_WIDTH = 120;
@@ -92,6 +95,7 @@ public class LoanCalculator extends Application {
             try {
                 lblLoanAmountInWords.setText(NumerUtil.getToWords(Double.parseDouble(newVal)));
             } catch (NumberFormatException e) {
+                LOGGER.warn("Parsing failed for loan amount {}", newVal);
                 lblLoanAmountInWords.setText("Invalid number");
             }
         });
@@ -101,21 +105,34 @@ public class LoanCalculator extends Application {
                     || !Validator.isDouble(tfNumberOfYears, "Years must be a number")
                     || !Validator.isDouble(tfLoanAmount, "Loan amount must be a number")
             ) {
+                LOGGER.warn("Validation failed: One or more input fields contain invalid values.");
                 return;
             }
 
-            double interestRate = Double.parseDouble(tfAnnalInterestRate.getText());
-            double years = Double.parseDouble(tfNumberOfYears.getText());
+            LOGGER.info("all inputs corrects.");
 
-            String loanAmount = tfLoanAmount.getText();
-            loanAmount = loanAmount.replaceAll(NON_NUMBERS_REGEX, "");
-            double principal = Double.parseDouble(loanAmount);
+            double principal = Double.parseDouble(tfLoanAmount.getText());
+            double years = Double.parseDouble(tfNumberOfYears.getText());
+            double interestRate = Double.parseDouble(tfAnnalInterestRate.getText());
+
+            LOGGER.info(String.format("Parsed principal: %.2f%%", principal));
+            LOGGER.info(String.format("Parsed interest rate: %.2f%%", interestRate));
+            LOGGER.info(String.format("Parsed years: %d", (int)years));
 
             currentLoan = new Loan(interestRate, principal, years * 12);
-            lblMonthlyPaymentVal.setText(currency.getSymbol() + " " + numberFormatInstance.format(currentLoan.getMonthlyPayment()));
-            lblTotalPaymentVal.setText(currency.getSymbol() + " " + numberFormatInstance.format(currentLoan.getTotalAmount()));
+
+            double monthlyPayment = currentLoan.getMonthlyPayment();
+            double totalAmount = currentLoan.getTotalAmount();
+
+            lblMonthlyPaymentVal.setText(currency.getSymbol() + " " + numberFormatInstance.format(monthlyPayment));
+            lblTotalPaymentVal.setText(currency.getSymbol() + " " + numberFormatInstance.format(totalAmount));
+
+            LOGGER.info(String.format("Calculated Monthly Payment: %.2f", monthlyPayment));
+            LOGGER.info(String.format("Calculated Total Payment: %.2f", totalAmount));
 
             taLoanSummary.setText(currentLoan.printAmortizationSchedule());
+
+            LOGGER.info("Generated Amortization schedule");
         });
 
         btnClear.setOnAction(e -> {
@@ -125,6 +142,7 @@ public class LoanCalculator extends Application {
             lblMonthlyPaymentVal.setText("NA");
             lblTotalPaymentVal.setText("NA");
             taLoanSummary.setText("Loan amortization detail will appear here");
+            LOGGER.info("All inputs/outputs cleared");
         });
 
         btnExport.setOnAction(e -> {

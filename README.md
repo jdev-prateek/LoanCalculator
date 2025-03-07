@@ -6,13 +6,15 @@ A simple desktop app to calculate loan.
 
 * Add locale - x
 * highlight required fields on empty - x
-* add logs 
 * add clern button - x
 * add about in menu
 * fix window size - x
 * view logs 
-* export data
+* export data - x
 * show message box on errors - x
 * add validation for integers - x
 * add request focus - x
 * add option to change compunding period
+* add thread support when exporting
+* add testing support
+* 
