@@ -1,6 +1,6 @@
 A simple desktop app to calculate loan.
 
-![app](./images/v2.png)
+![app](./images/v3.png)
 
 ## Todo
 
