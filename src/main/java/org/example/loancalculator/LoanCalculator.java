@@ -1,6 +1,8 @@
 package org.example.loancalculator;
 
 import javafx.application.Application;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -28,6 +30,7 @@ import java.util.Locale;
 public class LoanCalculator extends Application {
     Logger LOGGER = LoggerFactory.getLogger(LoanCalculator.class);
     Stage currentStage;
+    BooleanProperty isLoanNull = new SimpleBooleanProperty(true);
 
     private final int BUTTON_WIDTH = 120;
     private final int HBOX_SPACING = 40;
@@ -131,6 +134,7 @@ public class LoanCalculator extends Application {
             LOGGER.info(String.format("Calculated Total Payment: %.2f", totalAmount));
 
             taLoanSummary.setText(currentLoan.printAmortizationSchedule());
+            isLoanNull.set(false);
 
             LOGGER.info("Generated Amortization schedule");
         });
@@ -142,6 +146,11 @@ public class LoanCalculator extends Application {
             lblMonthlyPaymentVal.setText("NA");
             lblTotalPaymentVal.setText("NA");
             taLoanSummary.setText("Loan amortization detail will appear here");
+            lblLoanAmountInWords.setText("");
+
+            currentLoan = null;
+            isLoanNull.set(true);
+
             LOGGER.info("All inputs/outputs cleared");
         });
 
@@ -149,7 +158,7 @@ public class LoanCalculator extends Application {
             exportToCSV();
         });
 
-        Scene scene = new Scene(rootPane, 600, 550);
+        Scene scene = new Scene(rootPane, 600, 580);
         currentStage.setScene(scene);
         currentStage.setTitle("Loan Calculator");
         currentStage.show();
@@ -261,11 +270,11 @@ public class LoanCalculator extends Application {
         taLoanSummary = new TextArea("Loan amortization detail will appear here");
         taLoanSummary.setStyle("-fx-font-family: 'Monospaced';");
         taLoanSummary.setEditable(false);
-        taLoanSummary.setMinHeight(200);
+        taLoanSummary.setMinHeight(250);
 
         btnExport = new Button("Export");
         btnExport.setPrefWidth(BUTTON_WIDTH);
-
+        btnExport.disableProperty().bind(isLoanNull);
 
         VBox pane = new VBox(10, lbl, taLoanSummary, btnExport);
         return pane;
