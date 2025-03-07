@@ -152,7 +152,6 @@ public class LoanCalculator extends Application {
         HBox interestPane = new HBox(HBOX_SPACING);
         interestPane.getChildren().addAll(lblAnnualInterestRate, tfAnnalInterestRate);
         interestPane.setAlignment(Pos.CENTER_LEFT);
-//        interestPane.setStyle("-fx-border-color: red; -fx-border-width: 2px; -fx-border-style: solid;");
         return interestPane;
     }
 
@@ -189,14 +188,11 @@ public class LoanCalculator extends Application {
 
     public HBox getLoanAmountInWordsPane() {
         lblLoanAmountInWords = new Label("");
-//        lblLoanAmountInWords.setStyle("-fx-border-color: red; -fx-border-width: 2px; -fx-border-style: solid;");
-//        lblLoanAmountInWords.setPrefWidth(490);
         lblLoanAmountInWords.setAlignment(Pos.BOTTOM_RIGHT);
 
         HBox.setHgrow(lblLoanAmountInWords, Priority.ALWAYS);
         HBox pane = new HBox(HBOX_SPACING);
         pane.getChildren().addAll(lblLoanAmountInWords);
-//        pane.setStyle("-fx-border-color: red; -fx-border-width: 2px; -fx-border-style: solid;");
         pane.setAlignment(Pos.CENTER_RIGHT);
         return pane;
     }
@@ -212,7 +208,6 @@ public class LoanCalculator extends Application {
         HBox pane = new HBox(20);
         pane.getChildren().addAll(btnCalculate, btnClear);
         pane.setAlignment(Pos.BOTTOM_RIGHT);
-//        pane.setStyle("-fx-border-color: red; -fx-border-width: 2px; -fx-border-style: solid;");
         return pane;
     }
 
@@ -226,7 +221,6 @@ public class LoanCalculator extends Application {
         HBox.setHgrow(lblMonthlyPaymentVal, Priority.ALWAYS);
         HBox pane = new HBox(HBOX_SPACING);
         pane.getChildren().addAll(lblMonthlyPayment, lblMonthlyPaymentVal);
-//        pane.setStyle("-fx-border-color: red; -fx-border-width: 2px; -fx-border-style: solid;");
         return pane;
     }
 
@@ -256,7 +250,6 @@ public class LoanCalculator extends Application {
 
 
         VBox pane = new VBox(10, lbl, taLoanSummary, btnExport);
-//        pane.setStyle("-fx-border-color: red; -fx-border-width: 2px; -fx-border-style: solid;");
         return pane;
     }
 }

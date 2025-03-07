@@ -39,9 +39,4 @@ public class NumerUtil {
 
         return out;
     }
-
-    public static void main(String[] args) {
-//        System.out.println(NumerUtil.getToWords(42400));
-        System.out.println(NumerUtil.getToWords(100000000000.0));
-    }
 }
