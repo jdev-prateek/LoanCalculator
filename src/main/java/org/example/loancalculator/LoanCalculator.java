@@ -14,6 +14,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.loancalculator.ui.MessageBox;
+import org.example.loancalculator.utils.ExportUtil;
 import org.example.loancalculator.utils.Loan;
 import org.example.loancalculator.utils.NumerUtil;
 import org.example.loancalculator.utils.Validator;
@@ -38,6 +39,9 @@ public class LoanCalculator extends Application {
 
     private Button btnCalculate;
     private Button btnClear;
+    private Button btnExport;
+
+    private Loan currentLoan;
 
     Label lblAnnualInterestRate;
     Label lblNumberOfYears;
@@ -107,11 +111,11 @@ public class LoanCalculator extends Application {
             loanAmount = loanAmount.replaceAll(NON_NUMBERS_REGEX, "");
             double principal = Double.parseDouble(loanAmount);
 
-            Loan loan = new Loan(interestRate, principal, years * 12);
-            lblMonthlyPaymentVal.setText(currency.getSymbol() + " " + numberFormatInstance.format(loan.getMonthlyPayment()));
-            lblTotalPaymentVal.setText(currency.getSymbol() + " " + numberFormatInstance.format(loan.getTotalAmount()));
+            currentLoan = new Loan(interestRate, principal, years * 12);
+            lblMonthlyPaymentVal.setText(currency.getSymbol() + " " + numberFormatInstance.format(currentLoan.getMonthlyPayment()));
+            lblTotalPaymentVal.setText(currency.getSymbol() + " " + numberFormatInstance.format(currentLoan.getTotalAmount()));
 
-            taLoanSummary.setText(loan.printAmortizationSchedule());
+            taLoanSummary.setText(currentLoan.printAmortizationSchedule());
         });
 
         btnClear.setOnAction(e -> {
@@ -123,10 +127,18 @@ public class LoanCalculator extends Application {
             taLoanSummary.setText("Loan amortization detail will appear here");
         });
 
+        btnExport.setOnAction(e -> {
+            exportToCSV();
+        });
+
         Scene scene = new Scene(rootPane, 600, 550);
         currentStage.setScene(scene);
         currentStage.setTitle("Loan Calculator");
         currentStage.show();
+    }
+
+    private void exportToCSV() {
+        ExportUtil.exportAmortizationScheduleToCSV(currentLoan, "file.csv");
     }
 
     public HBox getInterestPane() {
@@ -197,7 +209,7 @@ public class LoanCalculator extends Application {
         btnClear.setPrefWidth(BUTTON_WIDTH);
 
 
-        HBox pane = new HBox(HBOX_SPACING);
+        HBox pane = new HBox(20);
         pane.getChildren().addAll(btnCalculate, btnClear);
         pane.setAlignment(Pos.BOTTOM_RIGHT);
 //        pane.setStyle("-fx-border-color: red; -fx-border-width: 2px; -fx-border-style: solid;");
@@ -232,12 +244,18 @@ public class LoanCalculator extends Application {
     }
 
     public VBox getAmortizationPane(){
-        Label lbl = new Label("Ammortizaton details");
+        Label lbl = new Label("Amortization details");
+
         taLoanSummary = new TextArea("Loan amortization detail will appear here");
         taLoanSummary.setStyle("-fx-font-family: 'Monospaced';");
         taLoanSummary.setEditable(false);
-        taLoanSummary.setMinHeight(200);  // Set preferred size
-        VBox pane = new VBox(10, lbl, taLoanSummary);
+        taLoanSummary.setMinHeight(200);
+
+        btnExport = new Button("Export");
+        btnExport.setPrefWidth(BUTTON_WIDTH);
+
+
+        VBox pane = new VBox(10, lbl, taLoanSummary, btnExport);
 //        pane.setStyle("-fx-border-color: red; -fx-border-width: 2px; -fx-border-style: solid;");
         return pane;
     }
