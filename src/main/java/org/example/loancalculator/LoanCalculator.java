@@ -3,27 +3,35 @@ package org.example.loancalculator;
 import javafx.application.Application;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.example.loancalculator.ui.MessageBox;
-import org.example.loancalculator.utils.ExportUtil;
-import org.example.loancalculator.utils.Loan;
-import org.example.loancalculator.utils.NumerUtil;
-import org.example.loancalculator.utils.Validator;
+import org.example.loancalculator.ui.MessageProgressBar;
+import org.example.loancalculator.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.NumberFormat;
+import java.time.LocalDateTime;
 import java.util.Currency;
 import java.util.Locale;
 
@@ -31,11 +39,13 @@ public class LoanCalculator extends Application {
     Logger LOGGER = LoggerFactory.getLogger(LoanCalculator.class);
     Stage currentStage;
     BooleanProperty isLoanNull = new SimpleBooleanProperty(true);
+    SimpleStringProperty csvGenerationInProgess  = new SimpleStringProperty("Export");
 
     private final int BUTTON_WIDTH = 120;
     private final int HBOX_SPACING = 40;
     private final int LBL_PREF_WIDTH = 200;
     private final int TF_PREF_WIDTH = 250;
+    private final String GITHUB_ISSUE_URL = "https://github.com/jdev-prateek/LoanCalculator/issues";
 
     private TextField tfAnnalInterestRate;
     private TextField tfNumberOfYears;
@@ -58,10 +68,27 @@ public class LoanCalculator extends Application {
     Label lblMonthlyPaymentVal;
     Label lblTotalPaymentVal;
 
+    // menu
+    MenuBar menuBar;
+
+    // file menu
+    Menu fileMenu;
+    MenuItem menuItemSettings;
+    MenuItem menuItemQuit;
+
+    // Help menu
+    Menu helpMenu;
+    MenuItem menuItemIssue;
+    MenuItem menuItemAbout;
+
+
+    ExportTask exportTask;
+    DirectoryChooser directoryChooser = new DirectoryChooser();
+
     Locale locale = Locale.getDefault();
     NumberFormat numberFormatInstance = NumberFormat.getInstance(locale);
     Currency currency = Currency.getInstance(locale);
-    final String NON_NUMBERS_REGEX = "[^\\d.]";
+
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -69,9 +96,11 @@ public class LoanCalculator extends Application {
         numberFormatInstance.setMaximumFractionDigits(2);
 
         MessageBox.setPrimaryStage(currentStage);
+        MessageProgressBar.setPrimaryStage(currentStage);
 
         BorderPane rootPane = new BorderPane();
 
+        MenuBar menuBar = getMenuBar();
         HBox interestPane = getInterestPane();
         HBox yearsPane = getYearsPane();
         HBox loanAmountPane = getLoanAmountPane();
@@ -81,14 +110,16 @@ public class LoanCalculator extends Application {
         HBox loanAmountInWordsPane = getLoanAmountInWordsPane();
         VBox amortizationPane = getAmortizationPane();
 
-        VBox inputPane = new VBox(10);
-        inputPane.getChildren().addAll(interestPane,
+        VBox mainPane = new VBox(10);
+        mainPane.setPadding(new Insets(20));
+        mainPane.getChildren().addAll(interestPane,
                 yearsPane, loanAmountPane, loanAmountInWordsPane, buttonPane,
                 monthlyPaymentPane, totalPaymentPane, amortizationPane
         );
 
-        rootPane.setPadding(new Insets(20));
-        rootPane.setTop(inputPane);
+//        rootPane.setPadding(new Insets(20));
+        rootPane.setTop(menuBar);
+        rootPane.setCenter(mainPane);
 
         tfLoanAmount.textProperty().addListener((observableValue, oldVal, newVal) -> {
             if (newVal.isEmpty()) {
@@ -118,7 +149,7 @@ public class LoanCalculator extends Application {
             double years = Double.parseDouble(tfNumberOfYears.getText());
             double interestRate = Double.parseDouble(tfAnnalInterestRate.getText());
 
-            LOGGER.info(String.format("Parsed principal: %.2f%%", principal));
+            LOGGER.info(String.format("Parsed principal: %.2f", principal));
             LOGGER.info(String.format("Parsed interest rate: %.2f%%", interestRate));
             LOGGER.info(String.format("Parsed years: %d", (int)years));
 
@@ -158,6 +189,22 @@ public class LoanCalculator extends Application {
             exportToCSV();
         });
 
+        menuItemSettings.setOnAction(e -> {
+            stage.close();
+        });
+
+        menuItemQuit.setOnAction(e -> {
+            stage.close();
+        });
+
+        menuItemIssue.setOnAction(actionEvent -> {
+            getHostServices().showDocument(GITHUB_ISSUE_URL);
+        });
+
+        menuItemAbout.setOnAction(actionEvent -> {
+            MessageBox.show(AppConstants.ABOUT, "About");
+        });
+
         Scene scene = new Scene(rootPane, 600, 580);
         currentStage.setScene(scene);
         currentStage.setTitle("Loan Calculator");
@@ -165,7 +212,32 @@ public class LoanCalculator extends Application {
     }
 
     private void exportToCSV() {
-        ExportUtil.exportAmortizationScheduleToCSV(currentLoan, "file.csv");
+        File dirPath = directoryChooser.showDialog(currentStage);
+        Path savePath = Paths.get(dirPath.toString(), LocalDateTime.now().toString());
+        exportTask = new ExportTask(currentLoan, savePath.toString() + ".csv");
+        MessageProgressBar.setTask(exportTask);
+        MessageProgressBar.show("", "File Export");
+        new Thread(exportTask).start();
+    }
+
+    public MenuBar getMenuBar(){
+        menuBar = new MenuBar();
+
+        // file menu
+        fileMenu = new Menu("_File");
+        menuItemSettings = new MenuItem("_Settings");
+        menuItemQuit = new MenuItem("_Quit");
+        fileMenu.getItems().addAll(menuItemSettings, new SeparatorMenuItem(), menuItemQuit);
+
+        // help menu
+        helpMenu = new Menu("_Help");
+        menuItemIssue = new MenuItem("_Report Issue");
+        menuItemAbout = new MenuItem("_About");
+        helpMenu.getItems().addAll(menuItemIssue, menuItemAbout);
+
+        menuBar.getMenus().addAll(fileMenu, helpMenu);
+
+        return menuBar;
     }
 
     public HBox getInterestPane() {
@@ -275,6 +347,7 @@ public class LoanCalculator extends Application {
         btnExport = new Button("Export");
         btnExport.setPrefWidth(BUTTON_WIDTH);
         btnExport.disableProperty().bind(isLoanNull);
+        btnExport.textProperty().bind(csvGenerationInProgess);
 
         VBox pane = new VBox(10, lbl, taLoanSummary, btnExport);
         return pane;

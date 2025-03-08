@@ -3,6 +3,7 @@ module org.example.loancalculator {
     requires javafx.fxml;
     requires jdk.security.jgss;
     requires org.slf4j;
+    requires java.desktop;
 
 
     opens org.example.loancalculator to javafx.fxml;
