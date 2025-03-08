@@ -23,3 +23,4 @@ A simple desktop app to calculate loan.
 * add icon
 * binary files
 * new thread for loan amortization calculation
+* add pie chart
