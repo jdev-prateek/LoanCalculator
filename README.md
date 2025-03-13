@@ -1,13 +1,13 @@
 A simple desktop app to calculate loan.
 
-![app](./images/v4.png)
+![app](./images/v5.png)
 
 ## Todo
 
 * Add locale - x
 * highlight required fields on empty - x
 * add clern button - x
-* add about in menu
+* add about in menu - x
 * fix window size - x
 * view logs - x
 * export data - x
@@ -17,9 +17,9 @@ A simple desktop app to calculate loan.
 * add option to change compunding period
 * add thread support when exporting - x
 * add testing support
-* add option to save file location
+* add option to save file location - x
 * add tab for logs
-* add license
+* add license 
 * add icon
 * binary files
 * new thread for loan amortization calculation
