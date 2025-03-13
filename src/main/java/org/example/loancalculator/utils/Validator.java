@@ -1,28 +1,38 @@
 package org.example.loancalculator.utils;
 
 import javafx.scene.control.TextField;
-import org.example.loancalculator.ui.MessageBox;
+import org.example.loancalculator.controller.MessageBoxController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 public class Validator {
     static Logger LOGGER = LoggerFactory.getLogger(Validator.class);
+    static MessageBoxController messageBoxController;
 
-    public static boolean isInt(TextField textField, String message){
+    public static MessageBoxController getMessageBoxController() {
+        return messageBoxController;
+    }
+
+    public static void setMessageBoxController(MessageBoxController messageBoxController) {
+        Validator.messageBoxController = messageBoxController;
+    }
+
+    public static   boolean isInt(TextField textField, String message) {
         try{
             Integer.parseInt(textField.getText());
             LOGGER.info("Parsed textfield {}", textField.getId());
             return true;
         }
         catch (NumberFormatException e){
-            MessageBox.show(message, "Validation Error");
+
+            messageBoxController.show(message, "Validation Error");
             textField.requestFocus();
             return false;
         }
     }
 
-    public static boolean isDouble(TextField textField, String message){
+    public static boolean isDouble(TextField textField, String message) {
         try{
             Double.parseDouble(textField.getText());
             LOGGER.info("Parsed text field value {}", textField.getText());
@@ -30,7 +40,7 @@ public class Validator {
         }
         catch (NumberFormatException e){
             LOGGER.error("Parsing failed for text field value {}", textField.getText());
-            MessageBox.show(message, "Validation Error");
+            messageBoxController.show(message, "Validation Error");
             textField.requestFocus();
             return false;
         }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<SplitPane fx:id="settingsPane" dividerPositions="0.3" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="600.0" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.loancalculator.controller.SettingsViewController">
+   <items>
+      <AnchorPane fx:id="leftPane" minWidth="200.0" prefWidth="200.0" SplitPane.resizableWithParent="false">
+         <children>
+            <ListView fx:id="settingsList" maxWidth="200.0" minWidth="200.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="contentPane" minWidth="400.0" prefWidth="400.0" />
+   </items>
+</SplitPane>
