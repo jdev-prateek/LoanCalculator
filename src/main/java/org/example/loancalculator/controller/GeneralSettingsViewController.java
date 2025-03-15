@@ -45,8 +45,7 @@ public class GeneralSettingsViewController {
         Map<String, String> settings = AppState.getSettings();
         settings.put(AppConstants.Settings.EXPORT_DIR, file.toString());
 
-        PropertiesUtil propertiesUtil = new PropertiesUtil();
-        propertiesUtil.dump();
+        PropertiesUtil.dump();
 
         txtExportDir.setText(file.toString());
     }

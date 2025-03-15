@@ -2,6 +2,7 @@ package org.example.loancalculator.utils;
 
 import javafx.application.HostServices;
 
+import java.nio.file.Paths;
 import java.util.Map;
 
 public class AppState {
@@ -22,5 +23,10 @@ public class AppState {
 
     public static void setHostServices(HostServices hostServices) {
         AppState.hostServices = hostServices;
+    }
+
+    public static String getSettingsPropertiesPath(){
+        String homeDir = System.getProperty("user.home");
+        return Paths.get(homeDir, AppConstants.CONFIG_DIR, AppConstants.SETTINGS_PROPERTIES).toString();
     }
 }

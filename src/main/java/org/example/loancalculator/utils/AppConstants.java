@@ -12,6 +12,9 @@ public class AppConstants {
 
     public static String GITHUB_ISSUE_URL = "https://github.com/jdev-prateek/LoanCalculator/issues";
     public static String GITHUB_LINK = "https://github.com/jdev-prateek/LoanCalculator";
+    public static String CONFIG_DIR = ".configB";
+    public static String SETTINGS_PROPERTIES = "settings.properties";
+    public static String SOURCE_SETTINGS_PROPERTIES = "/org/example/loancalculator/settings.properties";
 
     public static class ExportStatus {
         public static final String EXPORT_STARTED = "EXPORT_STARTED";
