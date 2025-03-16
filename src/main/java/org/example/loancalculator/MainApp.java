@@ -1,7 +1,6 @@
 package org.example.loancalculator;
 
 import javafx.application.Application;
-import javafx.application.HostServices;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -23,24 +22,21 @@ import static java.nio.file.Files.exists;
 
 public class MainApp extends Application {
     private static final Logger log = LoggerFactory.getLogger(MainApp.class);
-    private Stage primaryStage;
 
     @Override
     public void start(Stage stage) throws IOException {
-        setUpConfigDir();
-
-        primaryStage = stage;
         FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("loan-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 620, 440);
-        LoanViewController hc = fxmlLoader.getController();
-        hc.setPrimaryStage(primaryStage);
-        System.out.println(hc);
+        LoanViewController loanViewController = fxmlLoader.getController();
+
+        setUpConfigDir();
+
+        loanViewController.setPrimaryStage(stage);
+        AppState.setHostServices(getHostServices());
 
         stage.setTitle("Loan Calculator");
         stage.setScene(scene);
         stage.show();
-
-        HostServices hostServices = getHostServices();
     }
 
     private void setUpConfigDir() throws IOException {
@@ -48,7 +44,6 @@ public class MainApp extends Application {
             String homeDir = System.getProperty("user.home");
             InputStream sourceStream = getClass().getResourceAsStream(AppConstants.SOURCE_SETTINGS_PROPERTIES);
             Path targetPath = Paths.get(homeDir, AppConstants.CONFIG_DIR, AppConstants.SETTINGS_PROPERTIES);
-            System.out.println(targetPath);
 
             if(!exists(targetPath)){
                 Files.createDirectory(Paths.get(homeDir, AppConstants.CONFIG_DIR));
@@ -70,10 +65,6 @@ public class MainApp extends Application {
         }
     }
 
-
-    public Stage getPrimaryStage() {
-        return primaryStage;
-    }
 
     public static void main(String[] args) {
         launch();

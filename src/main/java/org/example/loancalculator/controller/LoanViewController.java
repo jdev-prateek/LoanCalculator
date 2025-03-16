@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import org.example.loancalculator.appender.JavaFXAppender;
 import org.example.loancalculator.task.ExportTask;
 import org.example.loancalculator.utils.*;
 import org.slf4j.Logger;
@@ -20,6 +21,13 @@ import java.time.LocalDateTime;
 
 public class LoanViewController {
     private static final Logger log = LoggerFactory.getLogger(LoanViewController.class);
+
+    @FXML
+    private TabPane tabPane;
+
+    @FXML
+    private TextArea logTextArea;
+
     @FXML
     private MenuItem menuItemSettings;
 
@@ -89,6 +97,8 @@ public class LoanViewController {
     @FXML
     private void initialize() {
         try {
+            JavaFXAppender.setLogArea(logTextArea);
+
             FXMLLoader loader1 = new FXMLLoader(getClass().getResource("/org/example/loancalculator/message-box-view.fxml"));
             VBox messageBoxNode = loader1.load();
             messageBoxController = loader1.getController();
@@ -106,9 +116,8 @@ public class LoanViewController {
             aboutViewController = aboutLoader.getController();
 
             Validator.setMessageBoxController(messageBoxController);
-
         } catch (IOException e) {
-            log.error(String.valueOf(e));
+            log.error("", e);
         }
 
         txtLoanAmount.textProperty().addListener(this::onLoanAmountChange);

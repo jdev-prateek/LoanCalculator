@@ -42,18 +42,19 @@ public class SettingsViewController {
 
         settingsList.getItems().addAll("General");
 
-        settingsList.getSelectionModel().select(0);
-        loadContent("General");
-
         settingsList.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((observableValue, oldVal, newVal) -> {
-                    System.out.println(newVal);
                     loadContent(newVal);
         });
     }
 
     public void show(){
+        if(settingsList.getSelectionModel().getSelectedItem() == null){
+            settingsList.getSelectionModel().select(0);
+            loadContent("General");
+        }
+
         if (stage == null) {
             stage = new Stage();
             Scene scene = new Scene(settingsPane, 650, 400);
@@ -77,10 +78,6 @@ public class SettingsViewController {
                     fxmlLoader = new FXMLLoader(getClass().getResource("/org/example/loancalculator/general-settings-view.fxml"));
                     yield fxmlLoader.load();
                 }
-//                case "Appearance" -> {
-//                    fxmlLoader = new FXMLLoader(getClass().getResource("/org/example/fxml01/appearance-settings-view.fxml"));
-//                    yield fxmlLoader.load();
-//                }
 
                 default -> {
                     fxmlLoader = new FXMLLoader(getClass().getResource("/org/example/loancalculator/general-settings-view.fxml"));

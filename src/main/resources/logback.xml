@@ -1,0 +1,18 @@
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FX_TAB" class="org.example.loancalculator.appender.JavaFXAppender" >
+        <encoder>
+            <pattern>%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="DEBUG">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FX_TAB" />
+    </root>
+</configuration>
