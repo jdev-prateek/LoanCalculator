@@ -11,11 +11,16 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+@Component
 public class SettingsViewController {
     private static final Logger log = LoggerFactory.getLogger(SettingsViewController.class);
+    @FXML
+    public SplitPane splitPane;
+
     public AnchorPane leftPane;
 
     @FXML
@@ -27,8 +32,22 @@ public class SettingsViewController {
     @FXML
     private AnchorPane contentPane;
 
+    private final GeneralSettingsViewController generalSettingsViewController;
+
     private Stage stage;
     private Stage primaryStage;
+
+    public SettingsViewController(GeneralSettingsViewController generalSettingsViewController) {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/loancalculator/settings-view.fxml"));
+        loader.setController(this);
+        try {
+            splitPane = loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load message box FXML", e);
+        }
+
+        this.generalSettingsViewController = generalSettingsViewController;
+    }
 
     public Stage getPrimaryStage() {
         return primaryStage;
@@ -76,6 +95,7 @@ public class SettingsViewController {
             newContent = switch (selectMenuItem) {
                 case "General" -> {
                     fxmlLoader = new FXMLLoader(getClass().getResource("/org/example/loancalculator/general-settings-view.fxml"));
+                    fxmlLoader.setController(generalSettingsViewController);
                     yield fxmlLoader.load();
                 }
 

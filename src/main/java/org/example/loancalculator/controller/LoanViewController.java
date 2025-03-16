@@ -3,22 +3,30 @@ package org.example.loancalculator.controller;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.Label;
+import javafx.scene.control.Button;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.example.loancalculator.appender.JavaFXAppender;
 import org.example.loancalculator.task.ExportTask;
-import org.example.loancalculator.utils.*;
+import org.example.loancalculator.utils.AppConstants;
+import org.example.loancalculator.utils.Validator;
+import org.example.loancalculator.utils.Loan;
+import org.example.loancalculator.utils.AppState;
+import org.example.loancalculator.utils.NumerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
+@Controller
 public class LoanViewController {
     private static final Logger log = LoggerFactory.getLogger(LoanViewController.class);
 
@@ -69,10 +77,20 @@ public class LoanViewController {
     DirectoryChooser directoryChooser = new DirectoryChooser();
     ExportTask exportTask;
 
-    private MessageBoxController messageBoxController;
-    private MessageProgressBoxController messageProgressBoxController;
-    private SettingsViewController settingsViewController;
-    private AboutViewController aboutViewController;
+    private final MessageBoxController messageBoxController;
+    private final MessageProgressBoxController messageProgressBoxController;
+    private final SettingsViewController settingsViewController;
+    private final AboutViewController aboutViewController;
+
+    public LoanViewController(MessageBoxController messageBoxController,
+                              MessageProgressBoxController messageProgressBoxController,
+                              SettingsViewController settingsViewController,
+                              AboutViewController aboutViewController) {
+        this.messageBoxController = messageBoxController;
+        this.messageProgressBoxController = messageProgressBoxController;
+        this.settingsViewController = settingsViewController;
+        this.aboutViewController = aboutViewController;
+    }
 
     public void setPrimaryStage(Stage stage) {
         this.primaryStage = stage;
@@ -98,25 +116,25 @@ public class LoanViewController {
     private void initialize() {
         try {
             JavaFXAppender.setLogArea(logTextArea);
+//
+//            FXMLLoader loader1 = new FXMLLoader(getClass().getResource("/org/example/loancalculator/message-box-view.fxml"));
+//            VBox messageBoxNode = loader1.load();
+//            messageBoxController = loader1.getController();
+//
+//            FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/org/example/loancalculator/message-progress-box-view.fxml"));
+//            VBox messageProgressBoxNode = loader2.load();
+//            messageProgressBoxController = loader2.getController();
+//
+//            FXMLLoader settingsLoader = new FXMLLoader(getClass().getResource("/org/example/loancalculator/settings-view.fxml"));
+//            SplitPane messageProgressBoxNode1 = settingsLoader.load();
+//            settingsViewController = settingsLoader.getController();
+//
+//            FXMLLoader aboutLoader = new FXMLLoader(getClass().getResource("/org/example/loancalculator/about-view.fxml"));
+//            VBox messageProgressBoxNode2 = aboutLoader.load();
+//            aboutViewController = aboutLoader.getController();
 
-            FXMLLoader loader1 = new FXMLLoader(getClass().getResource("/org/example/loancalculator/message-box-view.fxml"));
-            VBox messageBoxNode = loader1.load();
-            messageBoxController = loader1.getController();
-
-            FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/org/example/loancalculator/message-progress-box-view.fxml"));
-            VBox messageProgressBoxNode = loader2.load();
-            messageProgressBoxController = loader2.getController();
-
-            FXMLLoader settingsLoader = new FXMLLoader(getClass().getResource("/org/example/loancalculator/settings-view.fxml"));
-            SplitPane messageProgressBoxNode1 = settingsLoader.load();
-            settingsViewController = settingsLoader.getController();
-
-            FXMLLoader aboutLoader = new FXMLLoader(getClass().getResource("/org/example/loancalculator/about-view.fxml"));
-            VBox messageProgressBoxNode2 = aboutLoader.load();
-            aboutViewController = aboutLoader.getController();
-
-            Validator.setMessageBoxController(messageBoxController);
-        } catch (IOException e) {
+//            Validator.setMessageBoxController(messageBoxController);
+        } catch (RuntimeException e) {
             log.error("", e);
         }
 

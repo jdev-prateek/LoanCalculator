@@ -4,11 +4,16 @@ import javafx.scene.control.TextField;
 import org.example.loancalculator.controller.MessageBoxController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
-
+@Component
 public class Validator {
-    static Logger LOGGER = LoggerFactory.getLogger(Validator.class);
-    static MessageBoxController messageBoxController;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Validator.class);
+    private static MessageBoxController messageBoxController;
+
+    public Validator(MessageBoxController messageBoxController) {
+        Validator.messageBoxController = messageBoxController;
+    }
 
     public static MessageBoxController getMessageBoxController() {
         return messageBoxController;
@@ -18,7 +23,7 @@ public class Validator {
         Validator.messageBoxController = messageBoxController;
     }
 
-    public static   boolean isInt(TextField textField, String message) {
+    public static boolean isInt(TextField textField, String message) {
         try{
             Integer.parseInt(textField.getText());
             LOGGER.info("Parsed textfield {}", textField.getId());

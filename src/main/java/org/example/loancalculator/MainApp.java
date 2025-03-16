@@ -3,13 +3,16 @@ package org.example.loancalculator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import org.example.loancalculator.config.AppConfig;
 import org.example.loancalculator.controller.LoanViewController;
 import org.example.loancalculator.utils.AppConstants;
 import org.example.loancalculator.utils.AppState;
 import org.example.loancalculator.utils.PropertiesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,26 +23,35 @@ import java.util.Map;
 
 import static java.nio.file.Files.exists;
 
+
 public class MainApp extends Application {
     private static final Logger log = LoggerFactory.getLogger(MainApp.class);
+    private AnnotationConfigApplicationContext context;
+
+    @Override
+    public void init() throws Exception {
+        setUpConfigDir();
+        context = new AnnotationConfigApplicationContext(AppConfig.class);
+    }
 
     @Override
     public void start(Stage stage) throws IOException {
+
         FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("loan-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 620, 440);
+        fxmlLoader.setControllerFactory(context::getBean);
+        AnchorPane anchorPane = fxmlLoader.load();
         LoanViewController loanViewController = fxmlLoader.getController();
-
-        setUpConfigDir();
-
         loanViewController.setPrimaryStage(stage);
+
         AppState.setHostServices(getHostServices());
 
+        Scene scene = new Scene(anchorPane, 620, 440);
         stage.setTitle("Loan Calculator");
         stage.setScene(scene);
         stage.show();
     }
 
-    private void setUpConfigDir() throws IOException {
+    private void setUpConfigDir() {
         try{
             String homeDir = System.getProperty("user.home");
             InputStream sourceStream = getClass().getResourceAsStream(AppConstants.SOURCE_SETTINGS_PROPERTIES);

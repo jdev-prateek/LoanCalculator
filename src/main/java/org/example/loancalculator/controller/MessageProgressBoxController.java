@@ -2,6 +2,7 @@ package org.example.loancalculator.controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -13,7 +14,11 @@ import org.example.loancalculator.task.ExportTask;
 import org.example.loancalculator.utils.AppConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+
+@Component
 public class MessageProgressBoxController {
     private static final Logger log = LoggerFactory.getLogger(MessageProgressBoxController.class);
 
@@ -35,6 +40,16 @@ public class MessageProgressBoxController {
     private Stage primaryStage;
     private Stage stage;
     private ExportTask exportTask;
+
+    public MessageProgressBoxController() {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/loancalculator/message-progress-box-view.fxml"));
+        loader.setController(this);
+        try {
+            messageProgressBox = loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load message box FXML", e);
+        }
+    }
 
     public Stage getPrimaryStage() {
         return primaryStage;
