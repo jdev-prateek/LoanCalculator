@@ -66,7 +66,7 @@
                               </HBox>
                               <HBox alignment="TOP_RIGHT" prefWidth="200.0" spacing="10.0">
                                  <children>
-                                    <Label fx:id="lblNumbersInWords" alignment="CENTER" text="1 cr 25 lakh 10 thousand" HBox.hgrow="ALWAYS" />
+                                    <Label fx:id="lblNumbersInWords" alignment="CENTER" HBox.hgrow="ALWAYS" />
                                  </children>
                               </HBox>
                               <HBox alignment="TOP_RIGHT" prefWidth="200.0" spacing="20.0">

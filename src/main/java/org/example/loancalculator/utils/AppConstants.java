@@ -10,11 +10,11 @@ public class AppConstants {
             Feel free to use, modify, and distribute it.
             """;
 
-    public static String GITHUB_ISSUE_URL = "https://github.com/jdev-prateek/LoanCalculator/issues";
-    public static String GITHUB_LINK = "https://github.com/jdev-prateek/LoanCalculator";
-    public static String CONFIG_DIR = ".configB";
-    public static String SETTINGS_PROPERTIES = "settings.properties";
-    public static String SOURCE_SETTINGS_PROPERTIES = "/org/example/loancalculator/settings.properties";
+    public static final String GITHUB_ISSUE_URL = "https://github.com/jdev-prateek/LoanCalculator/issues";
+    public static final String GITHUB_LINK = "https://github.com/jdev-prateek/LoanCalculator";
+    public static final String CONFIG_DIR = ".configB";
+    public static final String SETTINGS_PROPERTIES = "settings.properties";
+    public static final String SOURCE_SETTINGS_PROPERTIES = "/org/example/loancalculator/settings.properties";
 
     public static class ExportStatus {
         public static final String EXPORT_STARTED = "EXPORT_STARTED";
